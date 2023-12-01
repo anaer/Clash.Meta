@@ -122,7 +122,7 @@ func (p *Proxy) NeedCheckForTestUrl(url string) bool {
 		queueM = p.history.Copy()
 	}
 
-	last := queueM.Last()
+	last := queueM[len(queueM)-1]
 
 	// 如果最近一次检查是半小时以上, 则需要再次检查
 	if last != nil {
