@@ -126,11 +126,9 @@ func (p *Proxy) NeedCheckForTestUrl(url string) bool {
 		last := queueM[len(queueM)-1]
 
 		// 如果最近一次检查是半小时以上, 则需要再次检查
-		nowTime := time.Now().Unix()
+		between := time.Now().Sub(last.Time).Seconds()
 
-		between := nowTime - last.Time
-
-		if between > 1800000 {
+		if between > 1800 {
 			return true
 		}
 	
