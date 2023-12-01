@@ -111,7 +111,7 @@ func (p *Proxy) DelayHistoryForTestUrl(url string) []C.DelayHistory {
 	return histories
 }
 
-func (p *Proxy) needCheckForTestUrl(url string) bool {
+func (p *Proxy) NeedCheckForTestUrl(url string) bool {
 	var queueM []C.DelayHistory
 
 	if state, ok := p.extra.Load(url); ok {
