@@ -203,8 +203,8 @@ func (hc *HealthCheck) execute(b *batch.Batch[bool], url, uid string, option *ex
 			}
 		}
 
+		p := proxy
 		if proxy.NeedCheckForTestUrl(url) {
-			p := proxy
 			b.Go(p.Name(), func() (bool, error) {
 				ctx, cancel := context.WithTimeout(context.Background(), defaultURLTestTimeout)
 				defer cancel()
