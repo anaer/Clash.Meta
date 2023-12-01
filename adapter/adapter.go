@@ -111,6 +111,29 @@ func (p *Proxy) DelayHistoryForTestUrl(url string) []C.DelayHistory {
 	return histories
 }
 
+func (p *Proxy) needCheckForTestUrl(url string) []C.DelayHistory {
+	var queueM []C.DelayHistory
+
+	if state, ok := p.extra.Load(url); ok {
+		queueM = state.history.Copy()
+	}
+
+	if queueM == nil {
+		queueM = p.history.Copy()
+	}
+
+	// 连续3次 检查不通过 则不需要检查
+	if queueM.Len() >= 3 {
+		for _, item := range queueM {
+			if item.Delay != 0 {
+				return true
+			}
+		}
+		return false
+	}
+	return true
+}
+
 func (p *Proxy) ExtraDelayHistory() map[string][]C.DelayHistory {
 	extraHistory := map[string][]C.DelayHistory{}
 

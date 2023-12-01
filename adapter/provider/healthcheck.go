@@ -204,14 +204,18 @@ func (hc *HealthCheck) execute(b *batch.Batch[bool], url, uid string, option *ex
 		}
 
 		p := proxy
-		b.Go(p.Name(), func() (bool, error) {
-			ctx, cancel := context.WithTimeout(context.Background(), defaultURLTestTimeout)
-			defer cancel()
-			log.Debugln("Health Checking, proxy: %s, url: %s, id: {%s}", p.Name(), url, uid)
-			_, _ = p.URLTest(ctx, url, expectedStatus, store)
-			log.Debugln("Health Checked, proxy: %s, url: %s, alive: %t, delay: %d ms uid: {%s}", p.Name(), url, p.AliveForTestUrl(url), p.LastDelayForTestUrl(url), uid)
-			return false, nil
-		})
+		if p.needCheckForTestUrl(url) {
+			b.Go(p.Name(), func() (bool, error) {
+				ctx, cancel := context.WithTimeout(context.Background(), defaultURLTestTimeout)
+				defer cancel()
+				log.Debugln("Health Checking, proxy: %s, url: %s, id: {%s}", p.Name(), url, uid)
+				_, _ = p.URLTest(ctx, url, expectedStatus, store)
+				log.Debugln("Health Checked, proxy: %s, url: %s, alive: %t, delay: %d ms uid: {%s}", p.Name(), url, p.AliveForTestUrl(url), p.LastDelayForTestUrl(url), uid)
+				return false, nil
+			})
+		} else {
+			log.Debugln("Health Check Skip, proxy: %s, url: %s, id: {%s}", p.Name(), url, uid)
+		}
 	}
 }
 
