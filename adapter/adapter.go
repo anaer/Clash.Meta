@@ -122,33 +122,32 @@ func (p *Proxy) NeedCheckForTestUrl(url string) bool {
 		queueM = p.history.Copy()
 	}
 
-	last := queueM[len(queueM)-1]
+	if len(queueM) > 0 {
+		last := queueM[len(queueM)-1]
 
-	// 如果最近一次检查是半小时以上, 则需要再次检查
-	if last != nil {
-		nowTime := time.Now()
-		lastTime := time.Unix(last.Time, 0)
+		// 如果最近一次检查是半小时以上, 则需要再次检查
+		nowTime := time.Now().Unix()
 
-		between := nowTime.Sub(lastTime).Seconds()
+		between := nowTime - last.Time
 
-		if between > 1800 {
+		if between > 1800000 {
 			return true
 		}
-	}
 	
-	// 如果半小时内 连续3次以上 检查不通过 则不需要检查
-	if len(queueM) >= 3 {
-		for i, item := range queueM {
-			if i > 3 {
-				break
+		// 如果半小时内 连续3次以上 检查不通过 则不需要检查
+		if len(queueM) >= 3 {
+			for i, item := range queueM {
+				if i > 3 {
+					break
+				}
+				if item.Delay != 0 {
+					return true
+				}
 			}
-			if item.Delay != 0 {
-				return true
-			}
-		}
 
-		log.Debugln("health check will be skip, name: %s last.Delay: %d, last.Time: %s", p.Name(), last.Delay, last.Time)
-		return false
+			log.Debugln("health check will be skip, name: %s last.Delay: %d, last.Time: %s", p.Name(), last.Delay, last.Time)
+			return false
+		}
 	}
 	return true
 }
