@@ -157,7 +157,7 @@ type Proxy interface {
 	ProxyAdapter
 	Alive() bool
 	AliveForTestUrl(url string) bool
-	needCheckForTestUrl(url string) bool
+	NeedCheckForTestUrl(url string) bool
 	DelayHistory() []DelayHistory
 	ExtraDelayHistory() map[string][]DelayHistory
 	LastDelay() uint16
