@@ -83,7 +83,7 @@ func (gb *GroupBase) Touch() {
 
 func (gb *GroupBase) GetAliveProxies(touch bool) []C.Proxy {
 	var newProxies []C.Proxy
-	proxies := GetProxies(touch)
+	proxies := gb.GetProxies(touch)
 	for _, p := range proxies {
 		if p.Alive() {
 			newProxies = append(newProxies, p)	
