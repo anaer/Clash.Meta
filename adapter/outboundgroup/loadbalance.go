@@ -19,6 +19,7 @@ import (
 	"github.com/Dreamacro/clash/constant/provider"
 
 	"golang.org/x/net/publicsuffix"
+	"github.com/zhangyunhao116/fastrand"
 )
 
 type strategyFn = func(proxies []C.Proxy, metadata *C.Metadata, touch bool) C.Proxy
@@ -175,13 +176,17 @@ func strategyConsistentHashing(url string) strategyFn {
 			}
 		}
 
-		// when availability is poor, traverse the entire list to get the available nodes
-		for _, proxy := range proxies {
-			// if proxy.Alive() {
+		// 使用随机有效节点
+		randNum := fastrand.Int()
+		length := len(proxies)
+		for i := 0; i < length; i++ {
+			id := (randNum + i) % length
+			proxy := proxies[id]
 			if proxy.AliveForTestUrl(url) {
+				i++
 				return proxy
 			}
-		}
+		}		
 
 		return proxies[0]
 	}
