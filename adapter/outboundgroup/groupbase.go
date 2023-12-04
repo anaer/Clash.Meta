@@ -81,6 +81,23 @@ func (gb *GroupBase) Touch() {
 	}
 }
 
+func (gb *GroupBase) GetAliveProxies(touch bool) []C.Proxy {
+	var newProxies []C.Proxy
+	proxies := GetProxies(touch)
+	for _, p := range proxies {
+		if p.Alive() {
+			newProxies = append(newProxies, p)	
+		}	
+	}
+
+	if len(newProxies) > 0 {
+		log.Debugln("alive proxies count: %d", len(newProxies))
+		return newProxies
+	}
+
+	return proxies;
+}
+
 func (gb *GroupBase) GetProxies(touch bool) []C.Proxy {
 	var proxies []C.Proxy
 	if len(gb.filterRegs) == 0 {
