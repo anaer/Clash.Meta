@@ -31,6 +31,7 @@ type GroupBase struct {
 	failedTesting    atomic.Bool
 	proxies          [][]C.Proxy
 	versions         []atomic.Uint32
+	lastHealthCheckTime time.Time
 }
 
 type GroupBaseOption struct {
@@ -255,6 +256,11 @@ func (gb *GroupBase) onDialFailed(adapterType C.AdapterType, err error) {
 }
 
 func (gb *GroupBase) healthCheck() {
+	if time.Since(gb.lastHealthCheckTime) < 300 {
+		log.Warnln("上次健康检查间隔不到5分钟 先跳过检查")
+		return
+	}
+
 	if gb.failedTesting.Load() {
 		return
 	}
@@ -273,6 +279,8 @@ func (gb *GroupBase) healthCheck() {
 	wg.Wait()
 	gb.failedTesting.Store(false)
 	gb.failedTimes = 0
+
+	gb.lastHealthCheckTime = time.Now()
 }
 
 func (gb *GroupBase) failedIntervalTime() int64 {
