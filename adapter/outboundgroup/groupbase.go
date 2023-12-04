@@ -247,8 +247,8 @@ func (gb *GroupBase) onDialFailed(adapterType C.AdapterType, err error) {
 			}
 
 			log.Debugln("ProxyGroup: %s failed count: %d", gb.Name(), gb.failedTimes)
-			if gb.failedTimes >= gb.maxFailedTimes() {
-				log.Warnln("because %s failed multiple times, active health check", gb.Name())
+			if gb.failedTimes >= gb.maxFailedTimes() && time.Since(gb.lastHealthCheckTime) > 300 {
+				log.Warnln("because %s failed %d times, active health check", gb.Name(), gb.failedTimes)
 				gb.healthCheck()
 			}
 		}
@@ -256,11 +256,6 @@ func (gb *GroupBase) onDialFailed(adapterType C.AdapterType, err error) {
 }
 
 func (gb *GroupBase) healthCheck() {
-	if time.Since(gb.lastHealthCheckTime) < 300 {
-		log.Warnln("上次健康检查间隔不到5分钟 先跳过检查")
-		return
-	}
-
 	if gb.failedTesting.Load() {
 		return
 	}

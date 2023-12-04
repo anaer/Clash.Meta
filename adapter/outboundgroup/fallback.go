@@ -13,6 +13,7 @@ import (
 	"github.com/Dreamacro/clash/component/dialer"
 	C "github.com/Dreamacro/clash/constant"
 	"github.com/Dreamacro/clash/constant/provider"
+	"github.com/Dreamacro/clash/log"
 )
 
 type Fallback struct {
@@ -31,6 +32,7 @@ func (f *Fallback) Now() string {
 // DialContext implements C.ProxyAdapter
 func (f *Fallback) DialContext(ctx context.Context, metadata *C.Metadata, opts ...dialer.Option) (C.Conn, error) {
 	proxy := f.findAliveProxy(true)
+	log.Infoln("[FALLBACK] find alive proxy: %s", proxy.Name())
 	c, err := proxy.DialContext(ctx, metadata, f.Base.DialOptions(opts...)...)
 	if err == nil {
 		c.AppendToChains(f)
