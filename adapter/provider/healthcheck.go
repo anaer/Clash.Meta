@@ -197,8 +197,8 @@ func (hc *HealthCheck) execute(b *batch.Batch[bool], url, uid string, option *ex
 
 	var newProxies []C.Proxy
 	for _, proxy := range hc.proxies {
-		if p.AliveForTestUrl(url) {
-			newProxies = append(newProxies, p)
+		if proxy.AliveForTestUrl(url) {
+			newProxies = append(newProxies, proxy)
 		}
 	}
 
