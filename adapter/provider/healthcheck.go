@@ -195,7 +195,19 @@ func (hc *HealthCheck) execute(b *batch.Batch[bool], url, uid string, option *ex
 		}
 	}
 
+	var newProxies []C.Proxy
 	for _, proxy := range hc.proxies {
+		if p.AliveForTestUrl(url) {
+			newProxies = append(newProxies, p)
+		}
+	}
+
+	// 如果存活的节点数小于10个, 则检测所有节点, 否则只检测存活节点
+	if len(newProxies) < 10 {
+		newProxies = hc.proxies
+	}
+
+	for _, proxy := range newProxies {
 		// skip proxies that do not require health check
 		if filterReg != nil {
 			if match, _ := filterReg.FindStringMatch(proxy.Name()); match == nil {
