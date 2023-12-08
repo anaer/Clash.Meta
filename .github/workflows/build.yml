@@ -28,6 +28,11 @@ jobs:
       fail-fast: false
       matrix:
         job:
+          - {
+              type: "WithoutCGO",
+              target: "windows-amd64 windows-386 darwin-amd64 darwin-arm64",
+              id: "1",
+            }
           # - {
           #     type: "WithoutCGO",
           #     target: "linux-amd64 linux-amd64-compatible",
@@ -54,11 +59,11 @@ jobs:
           #     target: "freebsd-386 freebsd-amd64 freebsd-arm64",
           #     id: "6",
           #   }
-          - {
-              type: "WithoutCGO",
-              target: "windows-amd64-compatible windows-amd64 windows-386",
-              id: "7",
-            }
+          # - {
+          #     type: "WithoutCGO",
+          #     target: "windows-amd64-compatible windows-amd64 windows-386",
+          #     id: "7",
+          #   }
           # - {
           #     type: "WithoutCGO",
           #     target: "windows-arm64 windows-arm32v7",
