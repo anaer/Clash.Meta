@@ -3,7 +3,6 @@ package log
 import (
 	"fmt"
 	"os"
-	"time"
 	"github.com/Dreamacro/clash/common/observable"
 
 	log "github.com/sirupsen/logrus"
@@ -22,7 +21,7 @@ func init() {
 		ForceColors: true,
 		FullTimestamp: true,
 		// TimestampFormat: "2006-01-02T15:04:05.999999999Z07:00",
-		TimestampFormat: time.Kitchen,
+		TimestampFormat: "15:04:05"
 	})
 }
 
