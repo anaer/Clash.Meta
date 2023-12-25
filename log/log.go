@@ -21,7 +21,7 @@ func init() {
 		ForceColors: true,
 		FullTimestamp: true,
 		// TimestampFormat: "2006-01-02T15:04:05.999999999Z07:00",
-		TimestampFormat: "15:04:05"
+		TimestampFormat: "15:04:05",
 	})
 }
 
