@@ -32,6 +32,7 @@ type GroupBase struct {
 	proxies          [][]C.Proxy
 	versions         []atomic.Uint32
 	lastHealthCheckTime time.Time
+	aliveCount       int
 }
 
 type GroupBaseOption struct {
@@ -90,7 +91,8 @@ func (gb *GroupBase) GetAliveProxies(touch bool) []C.Proxy {
 		}	
 	}
 
-	if len(newProxies) > 0 {
+	if len(newProxies) != gb.aliveCount {
+		gb.aliveCount = len(newProxies)
 		log.Infoln("%s alive proxies count: %d", gb.Name(), len(newProxies))
 		return newProxies
 	}
