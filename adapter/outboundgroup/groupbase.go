@@ -91,9 +91,12 @@ func (gb *GroupBase) GetAliveProxies(touch bool) []C.Proxy {
 		}	
 	}
 
-	if len(newProxies) != gb.aliveCount {
-		gb.aliveCount = len(newProxies)
-		log.Infoln("%s alive proxies count: %d", gb.Name(), len(newProxies))
+	int count = len(newProxies)
+	if count > 0 {
+		if count != gb.aliveCount {
+			gb.aliveCount = count
+			log.Infoln("%s alive proxies count: %d", gb.Name(), gb.aliveCount)
+		}
 		return newProxies
 	}
 
