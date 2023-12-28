@@ -30,7 +30,7 @@ jobs:
         job:
           - {
               type: "WithoutCGO",
-              target: "windows-amd64 windows-386 darwin-amd64 darwin-arm64",
+              target: "windows-amd64 darwin-amd64",
               id: "1",
             }
           # - {
