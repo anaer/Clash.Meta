@@ -288,6 +288,12 @@ jobs:
           generate_release_notes: true
           body_path: release.txt
 
+      - name: Delete Workflow Runs
+        uses: anaer/delete-workflow-runs@main
+        with:
+          retain_days: 1
+          keep_minimum_runs: 2
+
   Upload-Release:
     permissions: write-all
     if: ${{ github.ref_type=='tag' }}
