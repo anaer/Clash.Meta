@@ -186,7 +186,6 @@ func strategyConsistentHashing(url string) strategyFn {
 				return proxy
 			}
 		}
-		}
 
 		return proxies[0]
 	}
