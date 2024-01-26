@@ -18,6 +18,7 @@ import (
 	"github.com/metacubex/mihomo/component/dialer"
 	C "github.com/metacubex/mihomo/constant"
 	"github.com/puzpuzpuz/xsync/v3"
+	"github.com/metacubex/mihomo/log"
 )
 
 var UnifiedDelay = atomic.NewBool(false)
