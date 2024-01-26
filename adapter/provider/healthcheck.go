@@ -185,7 +185,19 @@ func (hc *HealthCheck) execute(b *batch.Batch[bool], url, uid string, option *ex
 		}
 	}
 
+	var newProxies []C.Proxy
 	for _, proxy := range hc.proxies {
+		if proxy.AliveForTestUrl(url) {
+			newProxies = append(newProxies, proxy)
+		}
+	}
+
+	// 如果存活的节点数小于10个, 则检测所有节点, 否则只检测存活节点
+	if len(newProxies) < 10 {
+		newProxies = hc.proxies
+	}
+
+	for _, proxy := range newProxies {
 		// skip proxies that do not require health check
 		if filterReg != nil {
 			if match, _ := filterReg.FindStringMatch(proxy.Name()); match == nil {
@@ -194,14 +206,18 @@ func (hc *HealthCheck) execute(b *batch.Batch[bool], url, uid string, option *ex
 		}
 
 		p := proxy
-		b.Go(p.Name(), func() (bool, error) {
-			ctx, cancel := context.WithTimeout(context.Background(), hc.timeout)
-			defer cancel()
-			log.Debugln("Health Checking, proxy: %s, url: %s, id: {%s}", p.Name(), url, uid)
-			_, _ = p.URLTest(ctx, url, expectedStatus)
-			log.Debugln("Health Checked, proxy: %s, url: %s, alive: %t, delay: %d ms uid: {%s}", p.Name(), url, p.AliveForTestUrl(url), p.LastDelayForTestUrl(url), uid)
-			return false, nil
-		})
+		if proxy.NeedCheckForTestUrl(url) {
+			b.Go(p.Name(), func() (bool, error) {
+				ctx, cancel := context.WithTimeout(context.Background(), hc.timeout)
+				defer cancel()
+				log.Debugln("Health Checking, proxy: %s, url: %s, id: {%s}", p.Name(), url, uid)
+				_, _ = p.URLTest(ctx, url, expectedStatus)
+				log.Debugln("Health Checked, proxy: %s, url: %s, alive: %t, delay: %d ms uid: {%s}", p.Name(), url, p.AliveForTestUrl(url), p.LastDelayForTestUrl(url), uid)
+				return false, nil
+			})
+		} else {
+			log.Debugln("Health Check Skip, proxy: %s, url: %s, uid: {%s}", p.Name(), url, uid)
+		}
 	}
 }
 

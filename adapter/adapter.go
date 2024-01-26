@@ -300,3 +300,43 @@ func urlToMetadata(rawURL string) (addr C.Metadata, err error) {
 	}
 	return
 }
+
+
+func (p *Proxy) NeedCheckForTestUrl(url string) bool {
+	var queueM []C.DelayHistory
+
+	if state, ok := p.extra.Load(url); ok {
+		queueM = state.history.Copy()
+	}
+
+	if queueM == nil {
+		queueM = p.history.Copy()
+	}
+
+	if len(queueM) > 0 {
+		last := queueM[len(queueM)-1]
+
+		// 如果最近一次检查是半小时以上, 则需要再次检查
+		between := time.Now().Sub(last.Time).Seconds()
+
+		if between > 1800 {
+			return true
+		}
+
+		// 如果半小时内 连续3次以上 检查不通过 则不需要检查
+		if len(queueM) >= 3 {
+			for i, item := range queueM {
+				if i > 3 {
+					break
+				}
+				if item.Delay != 0 {
+					return true
+				}
+			}
+
+			log.Debugln("health check will be skip, name: %s last.Delay: %d, last.Time: %s", p.Name(), last.Delay, last.Time)
+			return false
+		}
+	}
+	return true
+}

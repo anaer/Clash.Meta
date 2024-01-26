@@ -19,6 +19,7 @@ import (
 	"github.com/metacubex/mihomo/constant/provider"
 
 	"golang.org/x/net/publicsuffix"
+	"github.com/zhangyunhao116/fastrand"
 )
 
 type strategyFn = func(proxies []C.Proxy, metadata *C.Metadata, touch bool) C.Proxy
@@ -175,11 +176,16 @@ func strategyConsistentHashing(url string) strategyFn {
 			}
 		}
 
-		// when availability is poor, traverse the entire list to get the available nodes
-		for _, proxy := range proxies {
+		// 使用随机有效节点
+		randNum := fastrand.Int()
+		length := len(proxies)
+		for i := 0; i < length; i++ {
+			id := (randNum + i) % length
+			proxy := proxies[id]
 			if proxy.AliveForTestUrl(url) {
 				return proxy
 			}
+		}
 		}
 
 		return proxies[0]
@@ -223,7 +229,7 @@ func strategyStickySessions(url string) strategyFn {
 
 // Unwrap implements C.ProxyAdapter
 func (lb *LoadBalance) Unwrap(metadata *C.Metadata, touch bool) C.Proxy {
-	proxies := lb.GetProxies(touch)
+	proxies := lb.GetAliveProxies(touch)
 	return lb.strategyFn(proxies, metadata, touch)
 }
 

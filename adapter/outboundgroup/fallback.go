@@ -13,6 +13,7 @@ import (
 	"github.com/metacubex/mihomo/component/dialer"
 	C "github.com/metacubex/mihomo/constant"
 	"github.com/metacubex/mihomo/constant/provider"
+	"github.com/metacubex/mihomo/log"
 )
 
 type Fallback struct {
@@ -33,6 +34,7 @@ func (f *Fallback) Now() string {
 // DialContext implements C.ProxyAdapter
 func (f *Fallback) DialContext(ctx context.Context, metadata *C.Metadata, opts ...dialer.Option) (C.Conn, error) {
 	proxy := f.findAliveProxy(true)
+	log.Infoln("[FALLBACK] find alive proxy: %s", proxy.Name())
 	c, err := proxy.DialContext(ctx, metadata, f.Base.DialOptions(opts...)...)
 	if err == nil {
 		c.AppendToChains(f)
@@ -104,7 +106,7 @@ func (f *Fallback) Unwrap(metadata *C.Metadata, touch bool) C.Proxy {
 }
 
 func (f *Fallback) findAliveProxy(touch bool) C.Proxy {
-	proxies := f.GetProxies(touch)
+	proxies := f.GetAliveProxies(touch)
 	for _, proxy := range proxies {
 		if len(f.selected) == 0 {
 			if proxy.AliveForTestUrl(f.testUrl) {

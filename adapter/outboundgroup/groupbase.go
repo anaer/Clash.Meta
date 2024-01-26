@@ -31,6 +31,8 @@ type GroupBase struct {
 	failedTesting    atomic.Bool
 	proxies          [][]C.Proxy
 	versions         []atomic.Uint32
+	lastHealthCheckTime time.Time
+	aliveCount       int	
 }
 
 type GroupBaseOption struct {
@@ -246,8 +248,8 @@ func (gb *GroupBase) onDialFailed(adapterType C.AdapterType, err error) {
 			}
 
 			log.Debugln("ProxyGroup: %s failed count: %d", gb.Name(), gb.failedTimes)
-			if gb.failedTimes >= gb.maxFailedTimes() {
-				log.Warnln("because %s failed multiple times, active health check", gb.Name())
+			if gb.failedTimes >= gb.maxFailedTimes() && time.Since(gb.lastHealthCheckTime) > 300 {
+				log.Warnln("because %s failed %d times, active health check", gb.Name(), gb.failedTimes)
 				gb.healthCheck()
 			}
 		}
@@ -273,6 +275,8 @@ func (gb *GroupBase) healthCheck() {
 	wg.Wait()
 	gb.failedTesting.Store(false)
 	gb.failedTimes = 0
+
+	gb.lastHealthCheckTime = time.Now()
 }
 
 func (gb *GroupBase) failedIntervalTime() int64 {
@@ -291,4 +295,28 @@ func (gb *GroupBase) maxFailedTimes() int {
 
 func (gb *GroupBase) failedTimeoutInterval() time.Duration {
 	return 5 * time.Second
+}
+
+
+
+
+func (gb *GroupBase) GetAliveProxies(touch bool) []C.Proxy {
+	var newProxies []C.Proxy
+	proxies := gb.GetProxies(touch)
+	for _, p := range proxies {
+		if p.Alive() {
+			newProxies = append(newProxies, p)	
+		}	
+	}
+
+	count := len(newProxies)
+	if count > 0 {
+		if count != gb.aliveCount {
+			gb.aliveCount = count
+			log.Infoln("%s alive proxies count: %d", gb.Name(), gb.aliveCount)
+		}
+		return newProxies
+	}
+
+	return proxies;
 }

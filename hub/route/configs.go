@@ -258,6 +258,7 @@ func patchConfigs(w http.ResponseWriter, r *http.Request) {
 	if err := render.DecodeJSON(r.Body, &general); err != nil {
 		render.Status(r, http.StatusBadRequest)
 		render.JSON(w, r, ErrBadRequest)
+		log.Errorln("[configs] patchConfigs err: %v", err)
 		return
 	}
 
