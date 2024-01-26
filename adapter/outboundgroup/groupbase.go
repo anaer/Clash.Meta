@@ -300,11 +300,11 @@ func (gb *GroupBase) failedTimeoutInterval() time.Duration {
 
 
 
-func (gb *GroupBase) GetAliveProxies(touch bool) []C.Proxy {
+func (gb *GroupBase) GetAliveProxies(touch bool, url string) []C.Proxy {
 	var newProxies []C.Proxy
 	proxies := gb.GetProxies(touch)
 	for _, p := range proxies {
-		if p.Alive() {
+		if p.AliveForTestUrl(url) {
 			newProxies = append(newProxies, p)	
 		}	
 	}

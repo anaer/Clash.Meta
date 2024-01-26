@@ -106,7 +106,7 @@ func (f *Fallback) Unwrap(metadata *C.Metadata, touch bool) C.Proxy {
 }
 
 func (f *Fallback) findAliveProxy(touch bool) C.Proxy {
-	proxies := f.GetAliveProxies(touch)
+	proxies := f.GetAliveProxies(touch, f.testUrl)
 	for _, proxy := range proxies {
 		if len(f.selected) == 0 {
 			if proxy.AliveForTestUrl(f.testUrl) {
