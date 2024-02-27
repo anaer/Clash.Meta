@@ -7,12 +7,12 @@ on:
       - "README.md"
       - ".github/ISSUE_TEMPLATE/**"
     branches:
-      - Alpha
+      - Beta
     tags:
       - "v*"
   pull_request_target:
     branches:
-      - Alpha
+      - Beta
       
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
